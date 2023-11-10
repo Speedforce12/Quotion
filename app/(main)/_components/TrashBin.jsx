@@ -3,7 +3,8 @@
 import { Spinner } from "@/components/Spinner";
 import { Input } from "@/components/ui/input";
 import { api } from "@/convex/_generated/api";
-import { useQuery } from "convex/react";
+import { useConfirm } from "@/hooks/use-confirm";
+import { useMutation, useQuery } from "convex/react";
 import { FileText, Search, Trash2, Undo2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
@@ -11,9 +12,27 @@ import React, { useState } from "react";
 const TrashBin = () => {
   const [query, setQuery] = useState("");
   const archiveDocs = useQuery(api.documents.getArchiveDocs);
+  const restoreDoc = useMutation(api.documents.restore);
+
+  const { onOpen } = useConfirm();
   const router = useRouter();
 
+  // navigate to specific document page
   const onSelect = (documentId) => {
+    router.push(`/documents/${documentId}`);
+  };
+
+  // permanently delete documents
+  const onDelete = (e, documentId) => {
+    e.stopPropagation();
+    onOpen({ id: documentId });
+  };
+
+  // restore the documents
+  const onRestore = (e, documentId) => {
+    e.stopPropagation();
+
+    restoreDoc({ id: documentId });
     router.push(`/documents/${documentId}`);
   };
 
@@ -24,6 +43,7 @@ const TrashBin = () => {
       </div>
     );
   }
+
 
   const filterDocuments = archiveDocs.filter((d) =>
     d.title.toLowerCase().includes(query.toLowerCase())
@@ -42,7 +62,7 @@ const TrashBin = () => {
       </div>
 
       <div className='pt-3 w-full'>
-        {filterDocuments.map((document) => (
+        {  filterDocuments.map((document) => (
           <div
             className='flex items-center w-full justify-between hover:bg-primary/5 cursor-pointer px-1'
             key={document._id}
@@ -60,21 +80,29 @@ const TrashBin = () => {
               </span>
             </div>
 
-            <div className='flex items-center gap-x-2 '>
+            <div className='flex items-center gap-x-2'>
               <div
                 role='button'
-                className='h-7 w-7 rounded-sm dark:hover:bg-neutral-800 hover:bg-neutral-300 flex items-center justify-center'>
+                className='h-7 w-7 rounded-sm dark:hover:bg-neutral-800 hover:bg-neutral-300 flex items-center justify-center'
+                onClick={(e) => onRestore(e, document._id)}>
                 <Undo2 size={17} />
               </div>
 
               <div
                 role='button'
-                className='h-7 w-7 rounded-sm dark:hover:bg-neutral-800 hover:bg-neutral-300 flex items-center justify-center'>
+                className='h-7 w-7 rounded-sm dark:hover:bg-neutral-800 hover:bg-neutral-300 flex items-center justify-center'
+                onClick={(e) => onDelete(e, document._id)}>
                 <Trash2 size={17} />
               </div>
             </div>
           </div>
         ))}
+
+        {archiveDocs.length === 0 && (
+          <div className='flex items-center justify-center h-full'>
+            <span className="text-muted-foreground text-sm font-semibold">No matches found</span>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -100,7 +100,7 @@ export const updateDoc = mutation({
     content: v.optional(v.string()),
     coverImage: v.optional(v.string()),
     emoji: v.optional(v.string()),
-    title: v.string(),
+    title: v.optional(v.string()),
     documentId: v.id("documents"),
   },
   handler: async (ctx, args) => {
@@ -195,13 +195,101 @@ export const getArchiveDocs = query({
       .query("documents")
       .withIndex("by_user", (q) => q.eq("userId", userId))
       .filter((q) => q.eq(q.field("isArchived"), true))
-      .order("desc")
+      .order("asc")
       .collect();
 
-    // if (!foundDocuments) {
-    //   throw new Error("No documents found");
-    // }
+    if (!foundDocuments) {
+      throw new Error("No documents found");
+    }
 
     return foundDocuments;
+  },
+});
+
+export const deleteDoc = mutation({
+  args: {
+    id: v.id("documents"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Unauthenticated");
+    }
+
+    const userId = identity.subject;
+
+    const foundDoc = await ctx.db.get(args.id);
+
+    if (!foundDoc) {
+      throw new Error("No documents found");
+    }
+
+    if (foundDoc.userId !== userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const deletedDoc = await ctx.db.delete(args.id);
+
+    return deletedDoc;
+  },
+});
+
+export const restore = mutation({
+  args: {
+    id: v.id("documents"),
+  },
+  handler: async (ctx, args) => {
+    const identity = await ctx.auth.getUserIdentity();
+
+    if (!identity) {
+      throw new Error("Unauthenticated");
+    }
+
+    const userId = identity.subject;
+
+    const existingDoc = await ctx.db.get(args.id);
+
+    if (!existingDoc) {
+      throw new Error("No documents found");
+    }
+
+    if (existingDoc.userId !== userId) {
+      throw new Error("Unauthorized");
+    }
+
+    const restoreRecursive = async (documentId) => {
+      const childrenDocs = await ctx.db
+        .query("documents")
+        .withIndex("by_user_parentId", (q) =>
+          q.eq("userId", userId).eq("parentId", documentId)
+        )
+        .collect();
+
+      for (const child of childrenDocs) {
+        await ctx.db.patch(child._id, {
+          isArchived: false,
+        });
+
+        await restoreRecursive(child._id);
+      }
+    };
+
+    const options = {
+      isArchived: false,
+    };
+
+    if (existingDoc.parentId) {
+      const parent = await ctx.db.get(existingDoc.parentId);
+      if (parent?.isArchived) {
+        options.parentId = undefined;
+      }
+    }
+
+    const restoredDoc = await ctx.db.patch(args.id, options);
+
+    restoreRecursive(args.id);
+
+    return restoredDoc;
   },
 });

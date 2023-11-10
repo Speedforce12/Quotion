@@ -25,7 +25,6 @@ const PageItem = ({ parentId, level = 0 }) => {
     parentId: parentId,
   });
 
-  console.log("levels: " + level);
 
   const onSelect = (documentId) => {
     router.push(`/documents/${documentId}`);

@@ -4,6 +4,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import ConvexClientProvider from "@/providers/ConvexClientProvider";
 import ModalProvider from "@/providers/modal-provider";
 import ToastProvider from "@/providers/toase-provider";
+import { EdgeStoreProvider } from "@/lib/edgestore";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -38,9 +39,11 @@ export default function RootLayout({ children }) {
             defaultTheme='system'
             enableSystem
             disableTransitionOnChange>
-            <ModalProvider />
-            <ToastProvider />
-            {children}
+            <EdgeStoreProvider>
+              <ModalProvider />
+              <ToastProvider />
+              {children}
+            </EdgeStoreProvider>
           </ThemeProvider>
         </ConvexClientProvider>
       </body>

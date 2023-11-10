@@ -14,6 +14,9 @@ import { Separator } from "@radix-ui/react-dropdown-menu";
 import { cn } from "@/lib/utils";
 import { api } from "@/convex/_generated/api";
 import { useMutation } from "convex/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { useUser } from "@clerk/clerk-react";
 
 const NavItem = ({
   icon: Icon,
@@ -32,7 +35,11 @@ const NavItem = ({
   };
 
   const create = useMutation(api.documents.createNote);
+  const archive = useMutation(api.documents.archiveDocs);
+  const router = useRouter();
+  const {user} = useUser()
 
+  // create a new page/document
   const createDocument = (e) => {
     e.stopPropagation();
 
@@ -44,6 +51,19 @@ const NavItem = ({
       loading: "Creating a note",
       success: "New note created!",
       error: "Could not create a note",
+    });
+  };
+
+  // delete page
+  const HandleDeletion = () => {
+    const promise = archive({ documentId: id }).then(() =>
+      router.push("/documents")
+    );
+
+    toast.promise(promise, {
+      loading: "deletion of page in progress",
+      success: "Successfully deleted page",
+      error: "Unable to delete page",
     });
   };
 
@@ -83,18 +103,22 @@ const NavItem = ({
       {!!id && (
         <div className='flex items-center space-x-1 group-hover:opacity-100 opacity-0 ml-auto mr-1'>
           <Popover>
-            <PopoverTrigger className='h-5 w-5 rounded-sm dark:hover:bg-neutral-700 hover:bg-neutral-300 flex items-center justify-center'>
+            <PopoverTrigger
+              className='h-5 w-5 rounded-sm dark:hover:bg-neutral-700 hover:bg-neutral-300 flex items-center justify-center'
+              onClick={(e) => e.stopPropagation()}>
               <MoreHorizontal className='h-4 w-4 shrink-0 text-muted-foreground' />
             </PopoverTrigger>
             <PopoverContent className='p-1 w-60' sideOffset='0' align='start'>
               <div className='space-y-1'>
-                <div className='flex items-center hover:bg-primary/10 p-1 cursor-pointer rounded-md'>
+                <div
+                  className='flex items-center hover:bg-primary/10 p-1 cursor-pointer rounded-md'
+                  onClick={HandleDeletion}>
                   <Trash className='mr-2 text-rose-400' size={16} />
                   <p className='font-medium text-sm'>Delete</p>
                 </div>
                 <Separator className='my-2' />
                 <p className='font-medium text-xs text-muted-foreground p-1'>
-                  Last edited by: Ovonee
+                  Last edited by: {user.fullName}
                 </p>
               </div>
             </PopoverContent>

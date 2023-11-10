@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/hooks/use-confirm";
 import React from "react";
 
-const AlertBanner = () => {
+const AlertBanner = ({ documentId }) => {
   const { onOpen } = useConfirm();
   return (
     <div className='flex items-center justify-center bg-rose-500 p-2'>
@@ -17,7 +17,7 @@ const AlertBanner = () => {
           Restore
         </Button>
         <Button
-          onClick={onOpen}
+          onClick={() => onOpen({ id: documentId })}
           className='bg-transparent border text-white font-medium hover:bg-rose-500/80'
           size='sm'>
           Delete forever

@@ -47,7 +47,7 @@ const Navbar = ({ toggleSidebar, isCollapsed, isMobileView }) => {
         </div>
       </div>
 
-      {document?.isArchived && <AlertBanner />}
+      {document?.isArchived && <AlertBanner documentId={document._id} />}
     </>
   );
 };

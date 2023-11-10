@@ -10,7 +10,6 @@ const Title = ({ document }) => {
   const [title, setTitle] = useState(document?.title || "Untitled");
   const [isEditing, setIsEditing] = useState(false);
 
-  console.log("title",document?.title)
   const inputRef = useRef();
 
   const updateDoc = useMutation(api.documents.updateDoc);
