@@ -8,12 +8,11 @@ import { ImagePlus, X } from "lucide-react";
 import Image from "next/image";
 import React from "react";
 
-const CoverImage = ({ imageUrl, Id }) => {
+const CoverImage = ({ imageUrl, Id, preview }) => {
   const { edgestore } = useEdgeStore();
   const updateImage = useMutation(api.documents.updateDoc);
   const { replaceImage } = useImageUploader();
 
-  console.log("cover url ", imageUrl);
 
   const onDelete = async () => {
     await edgestore.publicFiles.delete({
@@ -31,7 +30,7 @@ const CoverImage = ({ imageUrl, Id }) => {
       {imageUrl && (
         <Image src={imageUrl} alt='' fill className='object-cover' priority />
       )}
-      {!!imageUrl && (
+      {!!imageUrl && !preview  &&(
         <div className='absolute bottom-3 right-5 flex items-center gap-x-2 opacity-0 group-hover:opacity-100 transition duration-200'>
           <Button
             onClick={() => replaceImage(imageUrl)}
@@ -54,4 +53,7 @@ const CoverImage = ({ imageUrl, Id }) => {
   );
 };
 
+
 export default CoverImage;
+
+

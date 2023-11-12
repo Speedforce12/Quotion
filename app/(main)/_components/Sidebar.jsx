@@ -34,10 +34,10 @@ const [minWidth, maxWidth, defaultWidth] = [240, 500, 240];
 const Sidebar = () => {
   const isMobileView = window.innerWidth <= 768;
   const [isCollapsed, setIsCollapsed] = useState(isMobileView);
-  const initialWidth = isMobileView
-    ? 0
-    : parseInt(localStorage.getItem("sidebarWidth")) || defaultWidth;
-  const [width, setWidth] = useState(initialWidth);
+  const [width, setWidth] = useState(
+    parseInt(localStorage.getItem("sidebarWidth")) || defaultWidth
+  );
+
   const isResized = useRef(false);
 
   const params = useParams();
@@ -47,18 +47,20 @@ const Sidebar = () => {
 
   const settings = useSettings();
   const router = useRouter();
-
-  const sidebarStyles = {
-    display: isCollapsed ? "none" : "block",
-    width: isCollapsed ? 0 : `${width / 16}rem`,
-    // transition: "width 0.3s ease-in-out",
-  };
+ const sidebarStyles = {
+   display: isCollapsed ? "none" : "block",
+   width: isCollapsed
+     ? 0
+     : isMobileView
+     ? `${width / 10}rem`
+     : `${width / 16}rem`,
+ };
 
   useEffect(() => {
     window.addEventListener("mousemove", (e) => {
-      if (!isResized.current) {
-        return;
-      }
+        if (!isResized.current || isMobileView) {
+          return;
+        }
 
       setWidth((previousWidth) => {
         const newWidth = previousWidth + e.movementX / 2;
@@ -72,7 +74,7 @@ const Sidebar = () => {
     window.addEventListener("mouseup", () => {
       isResized.current = false;
     });
-  }, []);
+  }, [isMobileView]);
 
   const toggleSidebar = () => {
     setIsCollapsed((prevCollapsed) => !prevCollapsed);
@@ -171,7 +173,7 @@ const Sidebar = () => {
 
       <div
         className={cn(
-          "absolute top-0 z-[99999] ",
+          "absolute top-0 z-[9999]",
           isCollapsed ? "w-full" : "left-60 w-[calc(100%-240px)]"
         )}
         ref={navbarRef}>

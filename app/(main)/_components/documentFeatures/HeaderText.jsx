@@ -9,7 +9,7 @@ import TextareaAutosize from "react-textarea-autosize";
 import IconPicker from "./IconPicker";
 import { useImageUploader } from "@/hooks/use-image-uploader";
 
-const HeaderText = ({ document }) => {
+const HeaderText = ({ document, preview }) => {
   const [title, setTitle] = useState(document?.title || "Untitled");
   const [isEditing, setIsEditing] = useState(false);
 
@@ -40,10 +40,12 @@ const HeaderText = ({ document }) => {
   return (
     <div className='relative group w-full pt-6'>
       <div className='space-y-3'>
-        {document?.emoji && <IconPicker document={document} />}
+        {document?.emoji && (
+          <IconPicker document={document} preview={preview} />
+        )}
         <div className='flex items-center gap-x-2 group-hover:opacity-100 opacity-0'>
-          {!document?.emoji && <IconPicker document={document} />}
-          {!document?.coverImage && (
+          {!document?.emoji && !preview && <IconPicker document={document} />}
+          {!document?.coverImage && !preview && (
             <Button
               onClick={onOpen}
               size='sm'

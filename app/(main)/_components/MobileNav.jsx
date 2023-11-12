@@ -10,7 +10,9 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Menu } from "lucide-react";
+import { Menu, } from "lucide-react";
+import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
 
 export function MobileNav() {
   return (
@@ -28,6 +30,8 @@ export function MobileNav() {
             Make changes to your profile here. Click save when youre done.
           </SheetDescription>
         </SheetHeader>
+
+        <Sidebar/>
       </SheetContent>
     </Sheet>
   );

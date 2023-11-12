@@ -10,7 +10,7 @@ import { Smile, X } from "lucide-react";
 import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
-const IconPicker = ({ document }) => {
+const IconPicker = ({ document, preview }) => {
   const { resolvedTheme } = useTheme();
 
   const updateIcon = useMutation(api.documents.updateDoc);
@@ -25,10 +25,10 @@ const IconPicker = ({ document }) => {
 
   const onIconRemove = (e) => {
     e.stopPropagation();
-     updateIcon({
-       documentId: document._id,
-       emoji: "",
-     });
+    updateIcon({
+      documentId: document._id,
+      emoji: "",
+    });
   };
 
   return (
@@ -38,13 +38,15 @@ const IconPicker = ({ document }) => {
           <>
             <div className='flex items-center gap-x-2 group/icon'>
               <p className='text-6xl  hover:opacity-70'>{document?.emoji}</p>
-              <Button
-                onClick={onIconRemove}
-                size='icon'
-                variant='outline'
-                className='rounded-full group-hover/icon:opacity-100 opacity-0'>
-                <X size={17} />
-              </Button>
+              {!preview && (
+                <Button
+                  onClick={onIconRemove}
+                  size='icon'
+                  variant='outline'
+                  className='rounded-full group-hover/icon:opacity-100 opacity-0'>
+                  <X size={17} />
+                </Button>
+              )}
             </div>
           </>
         ) : (

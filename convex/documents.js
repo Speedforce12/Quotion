@@ -102,6 +102,7 @@ export const updateDoc = mutation({
     emoji: v.optional(v.string()),
     title: v.optional(v.string()),
     documentId: v.id("documents"),
+    isPublished: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
     const identity = await ctx.auth.getUserIdentity();
@@ -291,5 +292,22 @@ export const restore = mutation({
     restoreRecursive(args.id);
 
     return restoredDoc;
+  },
+});
+
+export const previewDoc = query({
+  args: {
+    id: v.id("documents"),
+  },
+  handler: async (ctx, args) => {
+    const foundDoc = await ctx.db.get(args.id);
+
+    if (!foundDoc) {
+      throw new Error("No doc found");
+    }
+
+    if (foundDoc.isPublished) {
+      return foundDoc;
+    }
   },
 });
