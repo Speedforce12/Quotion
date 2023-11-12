@@ -22,7 +22,6 @@ const HeaderText = ({ document, preview }) => {
   };
 
   const onChange = (e) => {
-    console.log("onChange", e.target.value);
     setTitle(e.target.value);
     updateDoc({ documentId: document._id, title: e.target.value });
   };

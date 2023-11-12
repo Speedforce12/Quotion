@@ -25,17 +25,13 @@ const Navbar = ({ toggleSidebar, isCollapsed, isMobileView }) => {
   return (
     <>
       <div className='flex px-3 bg-background dark:bg-[#1F1F1F] py-2 w-full items-center gap-x-4'>
-        {isCollapsed  && (
+        {isCollapsed && (
           <Menu
             className='h-6 w-6 text-muted-foreground cursor-pointer'
             role='button'
             onClick={toggleSidebar}
           />
         )}
-
-        {/* {isCollapsed && isMobileView && (
-          <MobileNav toggleSidebar={toggleSidebar} />
-        )} */}
 
         <div className='flex items-center justify-between w-full'>
           <Title document={document} />
